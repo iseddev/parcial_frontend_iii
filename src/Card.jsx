@@ -1,11 +1,18 @@
-//Este componente deberia recibir por props y mostrar en pantalla la información que envía el usuario
-
-function Card() {
+// Este componente debería recibir por props y mostrar en pantalla la información que envía el usuario
+const Card = ({ userDataList }) => {
 	return (
 		<div>
-			<h2>Esto es un componente</h2>
+			{userDataList.map((userData) => (
+				<div key={userData.id}>
+					<h2>Datos registrados</h2>
+					<ul>
+						<li>Nombre: {userData.name}</li>
+						<li>Fecha Nacimiento: {userData.birthDate}</li>
+					</ul>
+				</div>
+			))}
 		</div>
 	);
-}
+};
 
 export default Card;

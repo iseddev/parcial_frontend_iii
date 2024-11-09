@@ -1,78 +1,81 @@
 // Vamos a poner en práctica los conocimientos que hemos adquirido acerca de la creación y manejo de formularios utilizando React. Para ello, te pediremos que crees un pequeño formulario, el cual deberá permitir a cualquier persona interactuar con el mismo ingresando los datos que se solicitan. Una vez ingresados dichos datos, al hacer clic en el botón de Enviar, se deberán llevar a cabo ciertas validaciones para corroborar que la información ingresada coincida con los datos esperados. Si ello es así, mostraremos en pantalla un componente que contendrá toda la información recibida. Caso contrario, deberás mostrar un mensaje de error.
 
 import { useState } from "react";
+import Card from "./Card";
 
-function App() {
+const App = () => {
 	//Aquí deberías agregar los estados y los handlers para los inputs
-	const [dataContent, setDataContent] = useState([]);
-	const [dataName, setDataName] = useState("");
-	const [dataBirthday, setDataBirthday] = useState("");
-	const [errorName, setErrorName] = useState("");
-	const [errorBirthday, setErrorBirthday] = useState("");
+	const [userDataList, setUserDataList] = useState([]);
+	const [userData, setUserData] = useState({ id: "", name: "", birthDate: "" });
+	const [errorNameLength, setErrorNameLength] = useState("");
+	const [errorBirthDateLength, setErrorBirthDateLength] = useState("");
 
-	const handleChangeName = (e) => setDataName(e.target.value);
-	const handleChangeBirthday = (e) => setDataBirthday(e.target.value);
+	const handleChangeInputName = (e) => {
+		if (e.target.value.length < 3) setErrorNameLength("Campo obligatorio de al menos 3 caracteres");
+		else setErrorNameLength("");
+		setUserData({ ...userData, name: e.target.value });
+	};
 
-	const handleSubmit = (e) => {
+	const handleChangeInputBirthday = (e) => {
+		if (e.target.value.length < 6)
+			setErrorBirthDateLength("Campo obligatorio de al menos 6 caracteres");
+		else setErrorBirthDateLength("");
+		setUserData({ ...userData, birthDate: e.target.value });
+	};
+
+	const handleButtonSubmit = (e) => {
 		e.preventDefault();
 
-		if (dataName.trim().length < 3) {
-			setErrorName("Campo obligatorio de al menos 3 caracteres");
-		} else if (dataBirthday.trim().length < 6) {
-			setErrorBirthday("Campo obligatorio de al menos 6 caracteres");
-			return;
-		}
-		if (dataName.trim().length >= 3) {
-			setDataName(dataName.trim());
-			setErrorName("");
-		} else if (dataBirthday.trim().length >= 6) {
-			setDataBirthday(dataBirthday.trim());
-			setErrorBirthday("");
-		}
+		const userName = userData.name.trim();
+		const userBirthDate = userData.birthDate.trim();
+		if (userName.length < 3 || userBirthDate.length < 6) return;
+		else setUserData({ id: crypto.randomUUID(), name: userName, birthDate: userBirthDate });
 
-		setDataContent(dataContent.push({ dataName, dataBirthday }));
-		console.log(dataContent);
+		setUserDataList([
+			...userDataList,
+			{
+				...userData,
+				id: crypto.randomUUID(),
+				name: userName,
+				birthDate: userBirthDate,
+			},
+		]);
+		console.log(userDataList);
 
-		setDataName("");
-		setDataBirthday("");
+		setUserData({ id: "", name: "", birthDate: "" });
 	};
 
 	return (
 		<div className="App">
-			<h1>¿De dónde nos visitas?</h1>
-			<form onSubmit={handleSubmit}>
+			<h1>Ingresa tus datos por favor</h1>
+			<form onSubmit={handleButtonSubmit}>
 				<div>
-					<label htmlFor="userName">Ingresa tu nombre</label>
+					<label htmlFor="userName">Ingresa tu nombre:</label>
 					<input
-						value={dataName}
-						onChange={handleChangeName}
+						value={userData.name}
+						onChange={handleChangeInputName}
 						type="text"
 						name="userName"
 						id="userName"
 					/>
-					{errorName && <p>{errorName}</p>}
+					{errorNameLength && <p>{errorNameLength}</p>}
 				</div>
 				<div>
 					<label htmlFor="userBirthday">Ingresa tu fecha de nacimiento(DDMMAAAA)</label>
 					<input
-						value={dataBirthday}
-						onChange={handleChangeBirthday}
+						value={userData.birthDate}
+						onChange={handleChangeInputBirthday}
 						type="text"
 						id="userBirthday"
 						name="userBirthday"
 					/>
-					{errorBirthday && <p>{errorBirthday}</p>}
+					{errorBirthDateLength && <p>{errorBirthDateLength}</p>}
 				</div>
 				<button type="submit">Enviar</button>
 			</form>
-			{dataContent.map((data, index) => (
-				<div key={index}>
-					<h2>{data.dataName}</h2>
-					<p>{data.dataBirthday}</p>
-				</div>
-			))}
+			<Card userDataList={userDataList} />
 		</div>
 	);
-}
+};
 
 export default App;
